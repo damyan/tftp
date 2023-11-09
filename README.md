@@ -1,7 +1,7 @@
 TFTP server and client library for Golang
 =========================================
 
-[![GoDoc](https://godoc.org/github.com/pin/tftp/v3?status.svg)](https://godoc.org/github.com/pin/tftp/v3)
+[![GoDoc](https://godoc.org/github.com/damyan/tftp-new/v3?status.svg)](https://godoc.org/github.com/damyan/tftp-new/v3)
 
 Implements:
  * [RFC 1350](https://tools.ietf.org/html/rfc1350) - The TFTP Protocol (Revision 2)
@@ -14,7 +14,7 @@ Partially implements (tsize server side only):
 Set of features is sufficient for PXE boot support.
 
 ``` go
-import "github.com/pin/tftp/v3"
+import "github.com/damyan/tftp-new/v3"
 ```
 
 The package is cohesive to Golang `io`. Particularly it implements
