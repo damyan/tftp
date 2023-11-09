@@ -714,7 +714,6 @@ func (r *slowReader) Read(p []byte) (n int, err error) {
 }
 
 type slowWriter struct {
-	r     io.Reader
 	n     int64
 	delay time.Duration
 }

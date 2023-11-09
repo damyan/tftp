@@ -40,7 +40,6 @@ type chanConnection struct {
 	channel       chan []byte
 	srcAddr, addr *net.UDPAddr
 	timeout       time.Duration
-	complete      chan string
 }
 
 func (c *chanConnection) sendTo(data []byte, addr *net.UDPAddr) error {
