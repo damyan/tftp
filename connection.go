@@ -66,9 +66,7 @@ func (c *chanConnection) sendTo(data []byte, addr *net.UDPAddr) error {
 func (c *chanConnection) readFrom(buffer []byte) (int, *net.UDPAddr, error) {
 	select {
 	case data := <-c.channel:
-		for i := range data {
-			buffer[i] = data[i]
-		}
+		_ = copy(buffer, data)
 		return len(data), c.addr, nil
 	case <-time.After(c.timeout):
 		return 0, nil, makeError(c.addr.String())

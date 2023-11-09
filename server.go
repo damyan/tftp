@@ -250,7 +250,6 @@ func (s *Server) Serve(conn net.PacketConn) error {
 			}
 		}
 	}
-	return nil
 }
 
 // Yes, I don't really like having separate IPv4 and IPv6 variants,
