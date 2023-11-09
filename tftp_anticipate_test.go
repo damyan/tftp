@@ -29,7 +29,7 @@ func makeTestServerAnticipateWindow() (*Server, *Client) {
 		panic(err)
 	}
 
-	go s.Serve(conn)
+	go s.Serve(conn) //nolint:errcheck
 
 	// Create client for that server
 	c, err := NewClient(localSystem(conn))

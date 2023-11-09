@@ -98,7 +98,7 @@ func (s *sender) ReadFrom(r io.Reader) (n int64, err error) {
 		}
 		err = s.sendOptions()
 		if err != nil {
-			s.abort(err)
+			_ = s.abort(err)
 			return 0, err
 		}
 	}
@@ -115,7 +115,7 @@ func (s *sender) ReadFrom(r io.Reader) (n int64, err error) {
 				binary.BigEndian.PutUint16(s.send[2:4], s.block)
 				_, err = s.sendWithRetry(4)
 				if err != nil {
-					s.abort(err)
+					_ = s.abort(err)
 					return n, err
 				}
 				if s.hook != nil {
@@ -123,13 +123,13 @@ func (s *sender) ReadFrom(r io.Reader) (n int64, err error) {
 				}
 				return n, nil
 			}
-			s.abort(err)
+			_ = s.abort(err)
 			return n, err
 		}
 		binary.BigEndian.PutUint16(s.send[2:4], s.block)
 		_, err = s.sendWithRetry(4 + l)
 		if err != nil {
-			s.abort(err)
+			_ = s.abort(err)
 			return n, err
 		}
 		if l < len(s.send)-4 {
@@ -241,7 +241,7 @@ func (s *sender) sendDatagram(l int) (*net.UDPAddr, error) {
 				continue
 			}
 			if err != nil {
-				s.abort(err)
+				_ = s.abort(err)
 				return addr, err
 			}
 			for name, value := range opts {

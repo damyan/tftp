@@ -32,7 +32,7 @@ func TestFrom(t *testing.T) {
 		r := bytes.NewReader([]byte(netascii))
 		b := &bytes.Buffer{}
 		from := FromWriter(b)
-		r.WriteTo(from)
+		_, _ = r.WriteTo(from)
 		n, _ := ioutil.ReadAll(b)
 		if string(n) != text {
 			t.Errorf("%q from netascii: %q != %q", netascii, n, text)
@@ -65,10 +65,10 @@ set mapping.
 func TestWriteRead(t *testing.T) {
 	var one bytes.Buffer
 	to := ToReader(strings.NewReader(text))
-	one.ReadFrom(to)
+	_, _ = one.ReadFrom(to)
 	two := &bytes.Buffer{}
 	from := FromWriter(two)
-	one.WriteTo(from)
+	_, _ = one.WriteTo(from)
 	text2, _ := ioutil.ReadAll(two)
 	if text != string(text2) {
 		t.Errorf("text mismatch \n%x \n%x", text, text2)
@@ -78,10 +78,10 @@ func TestWriteRead(t *testing.T) {
 func TestOneByte(t *testing.T) {
 	var one bytes.Buffer
 	to := iotest.OneByteReader(ToReader(strings.NewReader(text)))
-	one.ReadFrom(to)
+	_, _ = one.ReadFrom(to)
 	two := &bytes.Buffer{}
 	from := FromWriter(two)
-	one.WriteTo(from)
+	_, _ = one.WriteTo(from)
 	text2, _ := ioutil.ReadAll(two)
 	if text != string(text2) {
 		t.Errorf("text mismatch \n%x \n%x", text, text2)

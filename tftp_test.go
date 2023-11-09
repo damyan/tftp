@@ -377,7 +377,7 @@ func TestSendTsizeFromSeek(t *testing.T) {
 	s := NewServer(func(filename string, rf io.ReaderFrom) error {
 		b := make([]byte, 100)
 		rr := newRandReader(rand.NewSource(42))
-		rr.Read(b)
+		_, _ = rr.Read(b)
 		// bytes.Reader implements io.Seek
 		r := bytes.NewReader(b)
 		_, err := rf.ReadFrom(r)
@@ -392,7 +392,7 @@ func TestSendTsizeFromSeek(t *testing.T) {
 		t.Fatalf("listening: %v", err)
 	}
 
-	go s.Serve(conn)
+	go s.Serve(conn) //nolint:errcheck
 	defer s.Shutdown()
 
 	c, _ := NewClient(localSystem(conn))
@@ -410,7 +410,7 @@ func TestSendTsizeFromSeek(t *testing.T) {
 		t.Errorf("size expected: 100, got %d", size)
 	}
 
-	r.WriteTo(ioutil.Discard)
+	_, _ = r.WriteTo(ioutil.Discard)
 
 	c.RequestTSize(false)
 	r, _ = c.Receive("f", "octet")
@@ -421,7 +421,7 @@ func TestSendTsizeFromSeek(t *testing.T) {
 		}
 	}
 
-	r.WriteTo(ioutil.Discard)
+	_, _ = r.WriteTo(ioutil.Discard)
 }
 
 type testBackend struct {
@@ -446,7 +446,7 @@ func makeTestServer(singlePort bool) (*Server, *Client) {
 		panic(err)
 	}
 
-	go s.Serve(conn)
+	go s.Serve(conn) //nolint:errcheck
 
 	// Create client for that server
 	c, err := NewClient(localSystem(conn))
@@ -465,7 +465,7 @@ func TestNoHandlers(t *testing.T) {
 		panic(err)
 	}
 
-	go s.Serve(conn)
+	go s.Serve(conn) //nolint:errcheck
 
 	c, err := NewClient(localSystem(conn))
 	if err != nil {
@@ -879,7 +879,7 @@ func networkIP(n *net.IPNet) net.IP {
 func TestReadWriteErrors(t *testing.T) {
 	s := NewServer(
 		func(_ string, rf io.ReaderFrom) error {
-			_, err := rf.ReadFrom(&failingReader{}) // Read operation fails immediately.
+			_, err := rf.ReadFrom(&failintReader{}) // Read operation fails immediately.
 			if err != errRead {
 				t.Errorf("want: %v, got: %v", errRead, err)
 			}
@@ -887,7 +887,7 @@ func TestReadWriteErrors(t *testing.T) {
 			return nil
 		},
 		func(_ string, wt io.WriterTo) error {
-			_, err := wt.WriteTo(&failingWriter{}) // Write operation fails immediately.
+			_, err := wt.WriteTo(&failintWriter{}) // Write operation fails immediately.
 			if err != errWrite {
 				t.Errorf("want: %v, got: %v", errWrite, err)
 			}
@@ -938,18 +938,18 @@ func TestReadWriteErrors(t *testing.T) {
 	}
 }
 
-type failingReader struct{}
+type failintReader struct{}
 
 var errRead = errors.New("read error")
 
-func (r *failingReader) Read(_ []byte) (int, error) {
+func (r *failintReader) Read(_ []byte) (int, error) {
 	return 0, errRead
 }
 
-type failingWriter struct{}
+type failintWriter struct{}
 
 var errWrite = errors.New("write error")
 
-func (r *failingWriter) Write(_ []byte) (int, error) {
+func (r *failintWriter) Write(_ []byte) (int, error) {
 	return 0, errWrite
 }
