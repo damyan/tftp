@@ -785,13 +785,17 @@ func TestRequestPacketInfo(t *testing.T) {
 	}
 
 	// Start server
+	errs := make(chan error, 1)
 	go func() {
 		err := s.Serve(conn)
-		if err != nil {
-			t.Fatalf("serve: %v", err)
-		}
+		errs <- err
 	}()
 	defer s.Shutdown()
+
+	err := <-errs
+	if err != nil {
+		t.Fatalf("serve: %v", err)
+	}
 
 	addrs, err := net.InterfaceAddrs()
 	if err != nil {
@@ -906,13 +910,16 @@ func TestReadWriteErrors(t *testing.T) {
 	}
 
 	// Start server
+	errs := make(chan error, 1)
 	go func() {
 		err := s.Serve(conn)
-		if err != nil {
-			t.Fatalf("running serve: %v", err)
-		}
+		errs <- err
 	}()
 	defer s.Shutdown()
+	err := <-errs
+	if err != nil {
+		t.Fatalf("running serve: %v", err)
+	}
 
 	// Create client
 	c, err := NewClient(net.JoinHostPort(localhost, port))
