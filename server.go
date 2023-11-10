@@ -250,7 +250,6 @@ func (s *Server) Serve(conn net.PacketConn) error {
 			}
 		}
 	}
-	return nil
 }
 
 // Yes, I don't really like having separate IPv4 and IPv6 variants,
@@ -391,12 +390,12 @@ func (s *Server) handlePacket(localAddr net.IP, remoteAddr *net.UDPAddr, buffer 
 			if s.writeHandler != nil {
 				err := s.writeHandler(filename, wt)
 				if err != nil {
-					wt.abort(err)
+					_ = wt.abort(err)
 				} else {
-					wt.terminate()
+					_ = wt.terminate()
 				}
 			} else {
-				wt.abort(fmt.Errorf("server does not support write requests"))
+				_ = wt.abort(fmt.Errorf("server does not support write requests"))
 			}
 			s.wg.Done()
 		}()
@@ -447,10 +446,10 @@ func (s *Server) handlePacket(localAddr net.IP, remoteAddr *net.UDPAddr, buffer 
 			if s.readHandler != nil {
 				err := s.readHandler(filename, rf)
 				if err != nil {
-					rf.abort(err)
+					_ = rf.abort(err)
 				}
 			} else {
-				rf.abort(fmt.Errorf("server does not support read requests"))
+				_ = rf.abort(fmt.Errorf("server does not support read requests"))
 			}
 			s.wg.Done()
 		}(s.readHandler, rf, s.wg)

@@ -71,7 +71,7 @@ func (r *receiver) WriteTo(w io.Writer) (n int64, err error) {
 	if r.opts != nil {
 		err := r.sendOptions()
 		if err != nil {
-			r.abort(err)
+			_ = r.abort(err)
 			return 0, err
 		}
 	}
@@ -81,21 +81,21 @@ func (r *receiver) WriteTo(w io.Writer) (n int64, err error) {
 			l, err := w.Write(r.receive[4:r.l])
 			n += int64(l)
 			if err != nil {
-				r.abort(err)
+				_ = r.abort(err)
 				return n, err
 			}
 			if r.l < len(r.receive) {
 				if r.autoTerm {
-					r.terminate()
+					_ = r.terminate()
 				}
-				return n, nil
+				return n, err
 			}
 		}
 		binary.BigEndian.PutUint16(r.send[2:4], r.block)
 		r.block++ // send ACK for current block and expect next one
 		ll, _, err := r.receiveWithRetry(4)
 		if err != nil {
-			r.abort(err)
+			_ = r.abort(err)
 			return n, err
 		}
 		r.l = ll
@@ -119,7 +119,7 @@ func (r *receiver) sendOptions() error {
 		r.block = 1 // expect data block number 1
 		ll, _, err := r.receiveWithRetry(m)
 		if err != nil {
-			r.abort(err)
+			_ = r.abort(err)
 			return err
 		}
 		r.l = ll
@@ -193,7 +193,7 @@ func (r *receiver) receiveDatagram(l int) (int, *net.UDPAddr, error) {
 				continue
 			}
 			if err != nil {
-				r.abort(err)
+				_ = r.abort(err)
 				return 0, addr, err
 			}
 			for name, value := range opts {

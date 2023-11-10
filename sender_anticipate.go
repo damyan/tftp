@@ -78,7 +78,7 @@ func readFromAnticipate(s *sender, r io.Reader) (n int64, err error) {
 			knum = k + 1
 		}
 		if !kfillOk {
-			s.abort(err)
+			_ = s.abort(err)
 			return n, err
 		}
 		s.sendA.num = knum
@@ -92,7 +92,7 @@ func readFromAnticipate(s *sender, r io.Reader) (n int64, err error) {
 		}
 		_, err = s.sendWithRetryAnticipate()
 		if err != nil {
-			s.abort(err)
+			_ = s.abort(err)
 			return n, err
 		}
 		if kfillPartial {
@@ -177,7 +177,7 @@ func (s *sender) sendDatagramAnticipate() (*net.UDPAddr, error) {
 				continue
 			}
 			if err != nil {
-				s.abort(err)
+				_ = s.abort(err)
 				return addr, err
 			}
 			for name, value := range opts {

@@ -5,7 +5,6 @@ import (
 	"errors"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"math/rand"
 	"net"
 	"os"
@@ -289,7 +288,7 @@ func TestByOneByte(t *testing.T) {
 	if n != length {
 		t.Errorf("%s read length mismatch: %d != %d", filename, n, length)
 	}
-	bs, _ := ioutil.ReadAll(io.LimitReader(
+	bs, _ := io.ReadAll(io.LimitReader(
 		newRandReader(rand.NewSource(42)), length))
 	if !bytes.Equal(bs, buf.Bytes()) {
 		t.Errorf("\nsent: %x\nrcvd: %x", bs, buf)
@@ -311,7 +310,7 @@ func TestDuplicate(t *testing.T) {
 	if err != nil {
 		t.Fatalf("send error: %v", err)
 	}
-	sender, err = c.Send(filename, mode)
+	_, err = c.Send(filename, mode)
 	if err == nil {
 		t.Fatalf("file already exists")
 	}
@@ -365,7 +364,7 @@ func testSendReceive(t *testing.T, client *Client, length int64) {
 	if n != length {
 		t.Errorf("%s read length mismatch: %d != %d", filename, n, length)
 	}
-	bs, _ := ioutil.ReadAll(io.LimitReader(
+	bs, _ := io.ReadAll(io.LimitReader(
 		newRandReader(rand.NewSource(42)), length))
 	if !bytes.Equal(bs, buf.Bytes()) {
 		t.Errorf("\nsent: %x\nrcvd: %x", bs, buf)
@@ -377,7 +376,7 @@ func TestSendTsizeFromSeek(t *testing.T) {
 	s := NewServer(func(filename string, rf io.ReaderFrom) error {
 		b := make([]byte, 100)
 		rr := newRandReader(rand.NewSource(42))
-		rr.Read(b)
+		_, _ = rr.Read(b)
 		// bytes.Reader implements io.Seek
 		r := bytes.NewReader(b)
 		_, err := rf.ReadFrom(r)
@@ -392,7 +391,7 @@ func TestSendTsizeFromSeek(t *testing.T) {
 		t.Fatalf("listening: %v", err)
 	}
 
-	go s.Serve(conn)
+	go s.Serve(conn) //nolint:errcheck
 	defer s.Shutdown()
 
 	c, _ := NewClient(localSystem(conn))
@@ -410,7 +409,7 @@ func TestSendTsizeFromSeek(t *testing.T) {
 		t.Errorf("size expected: 100, got %d", size)
 	}
 
-	r.WriteTo(ioutil.Discard)
+	_, _ = r.WriteTo(io.Discard)
 
 	c.RequestTSize(false)
 	r, _ = c.Receive("f", "octet")
@@ -421,7 +420,7 @@ func TestSendTsizeFromSeek(t *testing.T) {
 		}
 	}
 
-	r.WriteTo(ioutil.Discard)
+	_, _ = r.WriteTo(io.Discard)
 }
 
 type testBackend struct {
@@ -446,7 +445,7 @@ func makeTestServer(singlePort bool) (*Server, *Client) {
 		panic(err)
 	}
 
-	go s.Serve(conn)
+	go s.Serve(conn) //nolint:errcheck
 
 	// Create client for that server
 	c, err := NewClient(localSystem(conn))
@@ -465,7 +464,7 @@ func TestNoHandlers(t *testing.T) {
 		panic(err)
 	}
 
-	go s.Serve(conn)
+	go s.Serve(conn) //nolint:errcheck
 
 	c, err := NewClient(localSystem(conn))
 	if err != nil {
@@ -714,7 +713,6 @@ func (r *slowReader) Read(p []byte) (n int, err error) {
 }
 
 type slowWriter struct {
-	r     io.Reader
 	n     int64
 	delay time.Duration
 }
@@ -767,7 +765,7 @@ func TestRequestPacketInfo(t *testing.T) {
 				localIP = net.IP{}
 			}
 			localIPMu.Unlock()
-			_, err := wt.WriteTo(ioutil.Discard)
+			_, err := wt.WriteTo(io.Discard)
 			if err != nil {
 				t.Logf("receiving from client: %v", err)
 			}
@@ -786,10 +784,10 @@ func TestRequestPacketInfo(t *testing.T) {
 	}
 
 	// Start server
-	go func() {
+	go func() { //nolint:staticcheck
 		err := s.Serve(conn)
 		if err != nil {
-			t.Fatalf("serve: %v", err)
+			t.Fatalf("serve: %v", err) //nolint:govet,staticcheck
 		}
 	}()
 	defer s.Shutdown()
@@ -842,7 +840,7 @@ func TestRequestPacketInfo(t *testing.T) {
 			t.Logf("start receiving from %v: %v", ip, err)
 			continue
 		}
-		_, err = it.WriteTo(ioutil.Discard)
+		_, err = it.WriteTo(io.Discard)
 		if err != nil {
 			t.Logf("receiving from %v: %v", ip, err)
 			continue
@@ -907,10 +905,10 @@ func TestReadWriteErrors(t *testing.T) {
 	}
 
 	// Start server
-	go func() {
+	go func() { //nolint:staticcheck
 		err := s.Serve(conn)
 		if err != nil {
-			t.Fatalf("running serve: %v", err)
+			t.Fatalf("serve: %v", err) //nolint:govet,staticcheck
 		}
 	}()
 	defer s.Shutdown()
