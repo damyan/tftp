@@ -1,4 +1,4 @@
-module github.com/damyan/tftp-new/v3
+module github.com/damyan/tftp/v3
 
 go 1.21
 

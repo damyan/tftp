@@ -8,7 +8,7 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/damyan/tftp-new/v3/netascii"
+	"github.com/damyan/tftp/v3/netascii"
 )
 
 // OutgoingTransfer provides methods to set the outgoing transfer size and
