@@ -784,10 +784,10 @@ func TestRequestPacketInfo(t *testing.T) {
 	}
 
 	// Start server
-	go func() {
+	go func() { //nolint:staticcheck
 		err := s.Serve(conn)
 		if err != nil {
-			t.Fatalf("serve: %v", err)
+			t.Fatalf("serve: %v", err) //nolint:govet,staticcheck
 		}
 	}()
 	defer s.Shutdown()
@@ -905,10 +905,10 @@ func TestReadWriteErrors(t *testing.T) {
 	}
 
 	// Start server
-	go func() {
+	go func() { //nolint:staticcheck
 		err := s.Serve(conn)
 		if err != nil {
-			t.Fatalf("running serve: %v", err)
+			t.Fatalf("serve: %v", err) //nolint:govet,staticcheck
 		}
 	}()
 	defer s.Shutdown()
