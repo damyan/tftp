@@ -63,7 +63,7 @@ func TestPackUnpack(t *testing.T) {
 	v := []string{"test-filename/with-subdir"}
 	testOptsList := []options{
 		nil,
-		options{
+		{
 			"tsize":   "1234",
 			"blksize": "22",
 		},
