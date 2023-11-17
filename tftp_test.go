@@ -391,7 +391,20 @@ func TestSendTsizeFromSeek(t *testing.T) {
 		t.Fatalf("listening: %v", err)
 	}
 
-	go s.Serve(conn) //nolint:errcheck
+	// Start server
+	errc := make(chan error, 1)
+
+	go func() {
+		if err = s.Serve(conn); err != nil {
+			errc <- err
+		}
+	}()
+	close(errc)
+	for err := range errc {
+		if err != nil {
+			t.Fatalf("serve: %v", err)
+		}
+	}
 	defer s.Shutdown()
 
 	c, _ := NewClient(localSystem(conn))
@@ -445,7 +458,20 @@ func makeTestServer(singlePort bool) (*Server, *Client) {
 		panic(err)
 	}
 
-	go s.Serve(conn) //nolint:errcheck
+	// Start server
+	errc := make(chan error, 1)
+
+	go func() {
+		if err = s.Serve(conn); err != nil {
+			errc <- err
+		}
+	}()
+	close(errc)
+	for err := range errc {
+		if err != nil {
+			panic(err)
+		}
+	}
 
 	// Create client for that server
 	c, err := NewClient(localSystem(conn))
@@ -464,7 +490,20 @@ func TestNoHandlers(t *testing.T) {
 		panic(err)
 	}
 
-	go s.Serve(conn) //nolint:errcheck
+	// Start server
+	errc := make(chan error, 1)
+
+	go func() {
+		if err = s.Serve(conn); err != nil {
+			errc <- err
+		}
+	}()
+	close(errc)
+	for err := range errc {
+		if err != nil {
+			t.Fatalf("serve: %v", err)
+		}
+	}
 
 	c, err := NewClient(localSystem(conn))
 	if err != nil {
@@ -784,12 +823,19 @@ func TestRequestPacketInfo(t *testing.T) {
 	}
 
 	// Start server
-	go func() { //nolint:staticcheck
-		err := s.Serve(conn)
-		if err != nil {
-			t.Fatalf("serve: %v", err) //nolint:govet,staticcheck
+	errc := make(chan error, 1)
+
+	go func() {
+		if err = s.Serve(conn); err != nil {
+			errc <- err
 		}
 	}()
+	close(errc)
+	for err := range errc {
+		if err != nil {
+			t.Fatalf("serve: %v", err)
+		}
+	}
 	defer s.Shutdown()
 
 	addrs, err := net.InterfaceAddrs()
@@ -905,12 +951,19 @@ func TestReadWriteErrors(t *testing.T) {
 	}
 
 	// Start server
-	go func() { //nolint:staticcheck
-		err := s.Serve(conn)
-		if err != nil {
-			t.Fatalf("serve: %v", err) //nolint:govet,staticcheck
+	errc := make(chan error, 1)
+
+	go func() {
+		if err = s.Serve(conn); err != nil {
+			errc <- err
 		}
 	}()
+	close(errc)
+	for err := range errc {
+		if err != nil {
+			t.Fatalf("serve: %v", err)
+		}
+	}
 	defer s.Shutdown()
 
 	// Create client
